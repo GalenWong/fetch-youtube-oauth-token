@@ -32,7 +32,17 @@ from the command line.
    python fetch-token.py client-secret.json
    ```
 4. Follow the outputted link and paste the token in
-5. A file named `credential.json` will be created
+5. A file named `credential.json` will be created, it would have
+   the following key
+   ```json
+   {
+      "token": "ya29.somereallylong-client-token",
+      "refresh_token": "1//a0Ab-Afasdfonfi-adfawf-M",
+      "token_uri": "https://oauth2.googleapis.com/token",
+      "client_id": "some-client-id.apps.googleusercontent.com",
+      "client_secret": "SomeClientSecret123-Ab_C"
+   }
+   ```
 
 
 The default scope would only includes
