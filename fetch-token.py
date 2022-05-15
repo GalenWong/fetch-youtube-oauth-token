@@ -4,6 +4,10 @@ import google_auth_oauthlib.flow
 import json
 import sys
 
+from flask import Flask
+import flask
+
+
 # secret file path
 client_secret_file = sys.argv[1]
 
@@ -18,7 +22,7 @@ flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
 # match one of the authorized redirect URIs for the OAuth 2.0 client, which you
 # configured in the API Console. If this value doesn't match an authorized URI,
 # you will get a 'redirect_uri_mismatch' error.
-flow.redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'
+flow.redirect_uri = 'http://localhost:5000/'
 
 # Generate URL for request to Google's OAuth 2.0 server.
 # Use kwargs to set optional request parameters.
@@ -32,18 +36,33 @@ authorization_url, _ = flow.authorization_url(
 print('Please go to this URL:')
 print(authorization_url)
 
-code = input('\nEnter the authorization code: ')
-flow.fetch_token(code=code)
+print()
 
-credentials = flow.credentials
-creds_obj = {
-    'token': credentials.token,
-    'refresh_token': credentials.refresh_token,
-    'token_uri': credentials.token_uri,
-    'client_id': credentials.client_id,
-    'client_secret': credentials.client_secret,
-    'scopes': credentials.scopes}
 
-with open('credentials.json', 'w') as f:
-    json.dump(creds_obj, f, indent=2)
+app = Flask(__name__)
 
+@app.route("/")
+def auth_route_callback():
+    auth_code = flask.request.args.get("code")
+    
+    flow.fetch_token(code=auth_code)
+    
+    credentials = flow.credentials
+    
+    credential_obj = {
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
+    }
+    
+    with open('credentials.json', 'w') as f:
+        json.dump(credential_obj, f, indent=2)
+    
+    success_string = "Credentials file successfully written. Server can be shutdown"
+    print(success_string)
+    return success_string
+
+app.run()
